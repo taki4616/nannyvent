@@ -1,0 +1,10 @@
+#!/bin/sh
+
+# Wait for PostgreSQL to be ready
+until pg_isready -h pg_container -p 5432 -U postgres; do
+  echo "Waiting for PostgreSQL..."
+  sleep 2
+done
+
+# Start the Flask app using gunicorn
+exec gunicorn -b 0.0.0.0:5000 app:app

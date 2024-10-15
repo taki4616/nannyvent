@@ -1,0 +1,62 @@
+version: '3.8'  # Specify your version at the top
+
+services:
+  pg_container:
+    image: postgres:14.1-alpine3.15
+    container_name: pg_container
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: yourpassword  # Change this to a secure password
+      POSTGRES_DB: nannyvent
+    ports:
+      - "5432:5432"
+    volumes:
+      - pg_data:/var/lib/postgresql/data  # Named volume for data persistence
+      - ./data/initdb/:/docker-entrypoint-initdb.d/  # Place SQL or dump files here
+      - ./backup:/var/lib/postgresql/backup  # Map for pg_dump
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - app_nannyvent_network  # Updated network name
+
+  pgadmin_container:
+    image: dpage/pgadmin4
+    container_name: pgadmin_container
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "8080:80"
+    depends_on:
+      - pg_container
+    networks:
+      - app_nannyvent_network  # Updated network name
+
+  my_flask_container:
+    build:
+      context: .  # Assuming your Dockerfile is in the same directory as this yml file
+      dockerfile: Dockerfile
+    container_name: my_flask_container
+    ports:
+      - "5000:5000"  # Change if you want to expose a different port
+    volumes:
+      - .:/app  # Mount the current directory to /app in the container
+    environment:
+      DATABASE_URL: postgresql://postgres:yourpassword@pg_container:5432/nannyvent  # Ensure password matches
+      SECRET_KEY: 957bfcd219a723a77ced051acda43973ee1440affba9ea17  
+      FLASK_ENV: development
+      DEBUG: 'True'
+    depends_on:
+      - pg_container  # Ensure the Flask container waits for PostgreSQL to start
+    networks:
+      - app_nannyvent_network  # Updated network name
+
+networks:
+  app_nannyvent_network:
+    driver: bridge  # Updated network name
+
+volumes:
+  pg_data:  # Named volume definition
