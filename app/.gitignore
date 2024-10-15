@@ -1,0 +1,32 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*.so
+
+# Virtual environment
+venv/
+.env
+
+# Flask/SQLAlchemy settings
+*.db
+instance/
+
+# Logs and databases
+*.log
+
+# Backup folders for Docker
+backup/
+data/
+
+# Docker generated files
+docker-compose.override.yml
+
+# macOS files
+.DS_Store
+
+# VSCode and other IDE files
+.vscode/
+.idea/
+
+# Other
+*.sqlite3

@@ -1,6 +1,10 @@
 # pylint: disable=missing-module-docstring
+# pylint: disable=import-error
+from dotenv import load_dotenv
 from flask_migrate import Migrate
 from app import db, create_app
+
+load_dotenv()
 
 # Create the Flask app
 app = create_app()

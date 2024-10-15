@@ -1,0 +1,9 @@
+# app.py or wherever your create_app function is defined
+@app.route('/test_connection')
+def test_connection():
+    try:
+        db.engine.execute("SELECT 1")
+        return "Connection successful!"
+    except Exception as e:
+        return str(e)
+
