@@ -9,6 +9,10 @@ main = Blueprint('main', __name__)
 def home():
     return "Welcome to Nannyvent!"
 
+@main.route('/test', methods=['GET'])
+def test():
+    return jsonify({"message": "Connection successful"})
+
 @main.route('/users', methods=['POST'])
 def create_user():
     data = request.get_json()
