@@ -5,9 +5,9 @@ import "../index.css";
 const About = () => {
   return (
     <div className="container mt-5">
-      <h2 className="text-primary">About NannyMatch</h2>
+      <h2 className="text-primary">About NannyVent</h2>
       <p className="text-secondary">
-        NannyMatch is a platform that connects families with experienced nannies
+        NannyVent is a platform that connects families with experienced nannies
         in their area. Our mission is to make childcare more accessible and
         stress-free.
       </p>

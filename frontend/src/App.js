@@ -14,7 +14,7 @@ function App() {
       <Navbar bg="dark" variant="dark" expand="lg">
         <Container>
           <Navbar.Brand as={Link} to="/">
-            NannyMatch
+            NannyVent
           </Navbar.Brand>
           <Nav className="ms-auto">
             <Nav.Link as={Link} to="/">
