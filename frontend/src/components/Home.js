@@ -1,12 +1,16 @@
+// src/components/Home.js
 import React from "react";
+import "bootstrap/dist/css/bootstrap.min.css";
+import "../index.css";
 
-function Home() {
+const Home = () => {
   return (
-    <div>
-      <h1>Welcome to Nannyvent</h1>
-      <p>Explore our blog and connect with the community.</p>
+    <div className="container text-center mt-5">
+      <h1 className="text-primary">Welcome to NannyMatch</h1>
+      <p className="text-secondary">Find the perfect nanny for your family.</p>
+      <button className="btn btn-custom mt-3">Get Started</button>
     </div>
   );
-}
+};
 
 export default Home;
