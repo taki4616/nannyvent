@@ -5,7 +5,7 @@ import "../index.css";
 const About = () => {
   return (
     <div className="container mt-5">
-      <h2 className="text-primary">About NannyVent</h2>
+      <h2 className="text-primary">About Us</h2>
       <p className="text-secondary">
         NannyVent is a platform that connects families with experienced nannies
         in their area. Our mission is to make childcare more accessible and

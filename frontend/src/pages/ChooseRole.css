@@ -1,0 +1,36 @@
+.choose-role-container {
+  text-align: center;
+  margin-top: 60px;
+}
+
+.role-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 40px;
+  margin-top: 40px;
+}
+
+.role-button {
+  width: 200px;
+  height: 200px;
+  font-size: 1.5rem;
+  font-weight: bold;
+  border: none;
+  border-radius: 10px;
+  color: white;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.role-button.nanny {
+  background-color: #007bff;
+}
+
+.role-button.parent {
+  background-color: #28a745;
+}
+
+.role-button:hover {
+  transform: scale(1.05);
+  opacity: 0.9;
+}

@@ -1,0 +1,42 @@
+/* src/components/GetStarted.css */
+
+.get-started-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 100px;
+}
+
+.get-started-title {
+  font-size: 2.5rem;
+  margin-bottom: 40px;
+  color: #333;
+}
+
+.button-group {
+  display: flex;
+  gap: 40px;
+}
+
+.role-button {
+  padding: 40px 60px;
+  font-size: 1.5rem;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  color: white;
+  font-weight: bold;
+  transition: transform 0.2s ease;
+}
+
+.role-button:hover {
+  transform: scale(1.05);
+}
+
+.role-button.nanny {
+  background-color: #4CAF50;
+}
+
+.role-button.parent {
+  background-color: #2196F3;
+}

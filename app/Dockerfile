@@ -2,10 +2,10 @@
 FROM python:3.9-slim
 
 # Set the working directory in the container
-WORKDIR /app
+WORKDIR /project
 
 # Copy the current directory contents into the container
-COPY . /app
+COPY . /project
 
 # Install any needed packages specified in requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
@@ -14,8 +14,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 EXPOSE 5000
 
 # Define environment variable
-ENV FLASK_APP=manage.py
-ENV PYTHONPATH=/app
-
+ENV FLASK_APP=app.py
+ENV PYTHONPATH=/project
 # Define the entry point to use the startup script
-CMD ["python", "manage.py", "run", "--host", "0.0.0.0", "--port", "5000"]
+CMD ["python", "app.py"]
