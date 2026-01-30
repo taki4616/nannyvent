@@ -66,7 +66,7 @@ function NavBar() {
 function App() {
   return (
     <AuthProvider>
-      <Router basename="/nannyvent">
+      <Router>
         <NavBar />
 
         <Container className="mt-4">
