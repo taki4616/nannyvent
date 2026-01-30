@@ -1,6 +1,6 @@
 /* eslint-disable no-unused-vars */
 import React from "react";
-import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
+import { HashRouter as Router, Routes, Route, Link } from "react-router-dom";
 import { Container, Navbar, Nav } from "react-bootstrap";
 import TestConnection from "./TestConnection";
 import Home from "./components/Home";
