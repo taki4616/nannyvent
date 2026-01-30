@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import API_BASE_URL from '../config';
 
 function NannyBoard() {
   const [posts, setPosts] = useState([]);
@@ -6,7 +7,7 @@ function NannyBoard() {
   useEffect(() => {
     const fetchNannyPosts = async () => {
       try {
-        const response = await fetch('http://localhost:5000/api/posts/nanny');
+        const response = await fetch(`${API_BASE_URL}/posts/nanny`);
         const data = await response.json();
         setPosts(data);
       } catch (err) {

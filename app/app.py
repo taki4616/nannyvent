@@ -1,21 +1,27 @@
-# pylint: disable=unused-import
 import os
 from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
+from flask_migrate import Migrate
 from models import db
+from config import Config
 
 def create_app():
     app = Flask(__name__)
-    
-    # Use environment variables for production
-    app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:///app.db')
-    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-    
-    CORS(app)
-    db.init_app(app)
+    app.config.from_object(Config)
 
-    from models import User, Post
+    # Render provides postgres:// but SQLAlchemy 2.x requires postgresql://
+    uri = app.config.get('SQLALCHEMY_DATABASE_URI', '')
+    if uri.startswith('postgres://'):
+        app.config['SQLALCHEMY_DATABASE_URI'] = uri.replace('postgres://', 'postgresql://', 1)
+
+    CORS(app, origins=[
+        "https://taki4616.github.io",
+        "http://localhost:3000"
+    ])
+
+    db.init_app(app)
+    Migrate(app, db)
+
     from routes import routes as main
     app.register_blueprint(main)
 
@@ -26,6 +32,6 @@ app = create_app()
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
-    
+
     port = int(os.environ.get('PORT', 5001))
     app.run(host='0.0.0.0', port=port, debug=False)

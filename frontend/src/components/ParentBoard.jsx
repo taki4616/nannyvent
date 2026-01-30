@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import API_BASE_URL from '../config';
 
 function ParentBoard() {
   const [posts, setPosts] = useState([]);
@@ -6,7 +7,7 @@ function ParentBoard() {
   useEffect(() => {
     const fetchParentPosts = async () => {
       try {
-        const response = await fetch('http://localhost:5000/api/posts/parent');
+        const response = await fetch(`${API_BASE_URL}/posts/parent`);
         const data = await response.json();
         setPosts(data);
       } catch (err) {

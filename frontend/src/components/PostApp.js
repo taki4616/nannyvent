@@ -1,22 +1,21 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
 import "./PostsApp.css";
-import { useAuth } from "../context/AuthContext";
 import API_BASE_URL from "../config";
 
 export default function PostsApp() {
-  const { user, token } = useAuth();
   const [posts, setPosts] = useState([]);
   const [currentRole, setCurrentRole] = useState("nanny");
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState({ text: "", type: "" });
 
+  // Form state
   const [formData, setFormData] = useState({
     title: "",
     content: "",
     role: "",
   });
 
+  // Load posts by role
   const loadPosts = async (role) => {
     setLoading(true);
     try {
@@ -35,9 +34,9 @@ export default function PostsApp() {
     }
   };
 
+  // Create post
   const handleSubmit = () => {
-    const role = formData.role || (user ? user.role : "");
-    if (!formData.title || !formData.content || !role) {
+    if (!formData.title || !formData.content || !formData.role) {
       showMessage("Please fill in all fields", "error");
       return;
     }
@@ -46,9 +45,8 @@ export default function PostsApp() {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
       },
-      body: JSON.stringify({ ...formData, role }),
+      body: JSON.stringify(formData),
     })
       .then((response) => response.json())
       .then((result) => {
@@ -65,16 +63,19 @@ export default function PostsApp() {
       });
   };
 
+  // Show message
   const showMessage = (text, type) => {
     setMessage({ text, type });
     setTimeout(() => setMessage({ text: "", type: "" }), 5000);
   };
 
+  // Handle role tab change
   const handleRoleChange = (role) => {
     setCurrentRole(role);
     loadPosts(role);
   };
 
+  // Load initial posts
   useEffect(() => {
     loadPosts("nanny");
   }, []);
@@ -84,70 +85,53 @@ export default function PostsApp() {
       <div className="posts-card">
         <h1 className="main-title">Nanny-Parent Communication</h1>
 
-        {/* Create Post Form - only shown when logged in */}
-        {user ? (
-          <div className="form-container">
-            <p style={{ color: "#4a5568", marginBottom: "1rem" }}>
-              Posting as <strong>{user.username}</strong> ({user.role})
-            </p>
-            <div className="form-row">
-              <div className="form-group">
-                <label className="form-label">Post Title</label>
-                <input
-                  type="text"
-                  value={formData.title}
-                  onChange={(e) =>
-                    setFormData({ ...formData, title: e.target.value })
-                  }
-                  className="form-input"
-                />
-              </div>
-
-              <div className="form-group">
-                <label className="form-label">Role</label>
-                <select
-                  value={formData.role || user.role}
-                  onChange={(e) =>
-                    setFormData({ ...formData, role: e.target.value })
-                  }
-                  className="form-select"
-                >
-                  <option value="nanny">Nanny</option>
-                  <option value="parent">Parent</option>
-                </select>
-              </div>
-            </div>
-
+        {/* Create Post Form */}
+        <div className="form-container">
+          <div className="form-row">
             <div className="form-group">
-              <label className="form-label">Content</label>
-              <textarea
-                value={formData.content}
+              <label className="form-label">Post Title</label>
+              <input
+                type="text"
+                value={formData.title}
                 onChange={(e) =>
-                  setFormData({ ...formData, content: e.target.value })
+                  setFormData({ ...formData, title: e.target.value })
                 }
-                className="form-textarea"
-                rows="4"
+                className="form-input"
               />
             </div>
 
-            <button onClick={handleSubmit} className="submit-btn">
-              Create Post
-            </button>
+            <div className="form-group">
+              <label className="form-label">Role</label>
+              <select
+                value={formData.role}
+                onChange={(e) =>
+                  setFormData({ ...formData, role: e.target.value })
+                }
+                className="form-select"
+              >
+                <option value="">Select Role</option>
+                <option value="nanny">Nanny</option>
+                <option value="parent">Parent</option>
+              </select>
+            </div>
           </div>
-        ) : (
-          <div className="form-container" style={{ textAlign: "center" }}>
-            <p style={{ color: "#4a5568", marginBottom: "1rem" }}>
-              <Link to="/login" style={{ color: "#667eea" }}>
-                Login
-              </Link>{" "}
-              or{" "}
-              <Link to="/register" style={{ color: "#667eea" }}>
-                Register
-              </Link>{" "}
-              to create posts
-            </p>
+
+          <div className="form-group">
+            <label className="form-label">Content</label>
+            <textarea
+              value={formData.content}
+              onChange={(e) =>
+                setFormData({ ...formData, content: e.target.value })
+              }
+              className="form-textarea"
+              rows="4"
+            />
           </div>
-        )}
+
+          <button onClick={handleSubmit} className="submit-btn">
+            Create Post
+          </button>
+        </div>
 
         {/* Message Display */}
         {message.text && (
@@ -185,7 +169,7 @@ export default function PostsApp() {
                 <div key={post.id} className="post-card">
                   <h3 className="post-title">{post.title}</h3>
                   <div className="post-meta">
-                    By: {post.author || post.role} |{" "}
+                    By: {post.role} |{" "}
                     {new Date(post.created_at).toLocaleString()}
                   </div>
                   <div className="post-content">{post.content}</div>

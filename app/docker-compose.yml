@@ -1,62 +1,62 @@
-version: '3.8'  # Specify your version at the top
+version: '3.8'
 
 services:
   pg_container:
     image: postgres:14.1-alpine3.15
     container_name: pg_container
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: yourpassword  # Change this to a secure password
-      POSTGRES_DB: nannyvent
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB:-nannyvent}
     ports:
       - "5432:5432"
     volumes:
-      - pg_data:/var/lib/postgresql/data  # Named volume for data persistence
-      - ./data/initdb/:/docker-entrypoint-initdb.d/  # Place SQL or dump files here
-      - ./backup:/var/lib/postgresql/backup  # Map for pg_dump
+      - pg_data:/var/lib/postgresql/data
+      - ./data/initdb/:/docker-entrypoint-initdb.d/
+      - ./backup:/var/lib/postgresql/backup
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 10s
       timeout: 5s
       retries: 5
     networks:
-      - app_nannyvent_network  # Updated network name
+      - app_nannyvent_network
 
   pgadmin_container:
     image: dpage/pgadmin4
     container_name: pgadmin_container
     environment:
-      PGADMIN_DEFAULT_EMAIL: admin@admin.com
-      PGADMIN_DEFAULT_PASSWORD: admin
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL:-admin@admin.com}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD}
     ports:
       - "8080:80"
     depends_on:
       - pg_container
     networks:
-      - app_nannyvent_network  # Updated network name
+      - app_nannyvent_network
 
   my_flask_container:
     build:
-      context: .  # Assuming your Dockerfile is in the same directory as this yml file
+      context: .
       dockerfile: Dockerfile
     container_name: my_flask_container
     ports:
-      - "5000:5000"  # Change if you want to expose a different port
+      - "5000:5000"
     volumes:
-      - .:/app  # Mount the current directory to /app in the container
+      - .:/app
     environment:
-      DATABASE_URL: postgresql://postgres:yourpassword@pg_container:5432/nannyvent  # Ensure password matches
-      SECRET_KEY: 957bfcd219a723a77ced051acda43973ee1440affba9ea17  
-      FLASK_ENV: development
-      DEBUG: 'True'
+      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@pg_container:5432/${POSTGRES_DB:-nannyvent}
+      SECRET_KEY: ${SECRET_KEY}
+      FLASK_ENV: ${FLASK_ENV:-production}
+      DEBUG: ${DEBUG:-False}
     depends_on:
-      - pg_container  # Ensure the Flask container waits for PostgreSQL to start
+      - pg_container
     networks:
-      - app_nannyvent_network  # Updated network name
+      - app_nannyvent_network
 
 networks:
   app_nannyvent_network:
-    driver: bridge  # Updated network name
+    driver: bridge
 
 volumes:
-  pg_data:  # Named volume definition
+  pg_data:
