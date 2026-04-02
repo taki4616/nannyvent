@@ -19,9 +19,10 @@ python-dotenv==1.0.1
 SQLAlchemy==2.0.33
 tomli==2.0.1
 typing_extensions==4.14.1
-Werkzeug==3.0.4
+Werkzeug>=3.1.0
 zipp==3.20.1
 flask-cors==6.0.1
 gunicorn==21.2.0
 PyJWT==2.8.0
+anthropic
 
