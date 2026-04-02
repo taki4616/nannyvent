@@ -1,150 +1,170 @@
-# nannyvent
+# NannyVent
 
-Nannyvent
-Nannyvent is a blog platform built with Flask for nannies to share their experiences and connect with others. The project is designed to handle user accounts and posts, leveraging PostgreSQL as the database and Docker to containerize the application. This project is part of a larger effort to hone backend development skills, with a focus on building robust and maintainable web applications.
+A full-stack platform where nannies and parents can post profiles, connect, and get AI-powered compatibility matching — built with Flask, React, and Claude.
 
-Table of Contents
-Features
-Project Structure
-Setup Instructions
-Running the Application
-Testing the API
-Database Backup and Restore
-Technologies Used
-Features
-User management (create, read, update, delete)
-Blog post creation and management
-PostgreSQL for database management
-Dockerized environment for easy deployment and development
-Database persistence using Docker volumes
-pgAdmin setup for database management
-Project Structure
-bash
-Copy code
+**Live demo:** [taki4616.github.io/nannyvent](https://taki4616.github.io/nannyvent)
+
+---
+
+## What it does
+
+NannyVent lets nannies and parents create posts describing who they are and what they're looking for. Once logged in, users can click **Match** on any post from the opposite role to get an AI-generated compatibility report — including a score, a summary of fit, and suggestions for both profiles.
+
+---
+
+## Features
+
+- JWT-based registration and login
+- Role-based posts (nanny or parent)
+- AI compatibility matching powered by the Claude API (Anthropic)
+- Full CRUD on posts (create, edit, delete)
+- React frontend deployed to GitHub Pages
+- Flask backend deployed to Render with PostgreSQL
+
+---
+
+## Tech stack
+
+**Backend**
+
+- Python / Flask
+- SQLAlchemy (ORM)
+- PostgreSQL (production) / SQLite (local dev)
+- JWT authentication via PyJWT
+- Anthropic Python SDK
+
+**Frontend**
+
+- React
+- Fetch API
+- Deployed via GitHub Pages
+
+**Infrastructure**
+
+- Render (backend hosting)
+- Docker / docker-compose (local dev)
+
+---
+
+## Project structure
+
+```
 nannyvent/
-│
 ├── app/
-│ ├── Dockerfile
-│ ├── docker-compose.yml
-│ ├── manage.py # Entry point to run the application
-│ ├── app.py # Initializes the Flask app and database
-│ ├── models.py # Database models (User and Post)
-│ ├── routes.py # API routes (user and post management)
-│ ├── config.py # App configurations
-│ └── requirements.txt # Python dependencies
-└── data/ # Folder for persistent PostgreSQL data
-└── backup/ # Folder for database backups
-Setup Instructions
+│   ├── app.py           # Flask app factory, DB init
+│   ├── models.py        # User and Post models
+│   ├── routes.py        # Auth, post, and AI match endpoints
+│   ├── config.py        # App configuration
+│   ├── requirements.txt
+│   ├── Dockerfile
+│   └── docker-compose.yml
+└── frontend/
+    └── src/
+        ├── components/
+        │   └── PostsApp.js
+        └── context/
+            └── AuthContext.js
+```
 
-1. Clone the Repository
-   bash
-   Copy code
-   git clone https://github.com/taki4616/nannyvent.git
-   cd nannyvent
-2. Set Up Environment Variables
-   For security, ensure you load environment variables from a .env file. Here's an example of what your .env file should contain:
+---
 
-makefile
-Copy code
-DATABASE_URL=postgresql://postgres:yourpassword@pg_container:5432/nannyvent
+## Running locally
+
+### Prerequisites
+
+- Python 3.9+
+- Node.js
+- An Anthropic API key from [console.anthropic.com](https://console.anthropic.com)
+
+### Backend
+
+```bash
+cd app
+python -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+```
+
+Create a `.env` file in `app/`:
+
+```
 SECRET_KEY=your_secret_key
-FLASK_ENV=development
-DEBUG=True 3. Docker Setup
-To get the application running using Docker, you can use the docker-compose.yml file to set up the Flask app, PostgreSQL, and pgAdmin services.
+DATABASE_URL=sqlite:///app.db
+ANTHROPIC_API_KEY=your_anthropic_api_key
+```
 
-bash
-Copy code
-docker-compose up --build
-This will build the containers and start the services.
+Start the server:
 
-4. Setting Up the Database
-   If you need to create the tables manually, use the following SQL queries:
+```bash
+python app.py
+```
 
-sql
-Copy code
-CREATE TABLE users (
-id SERIAL PRIMARY KEY,
-username VARCHAR(80) UNIQUE NOT NULL,
-email VARCHAR(120) UNIQUE NOT NULL,
-password VARCHAR(200) NOT NULL,
-created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
-);
+Backend runs at `http://localhost:5001`.
 
-CREATE TABLE posts (
-id SERIAL PRIMARY KEY,
-title VARCHAR(200) NOT NULL,
-content TEXT NOT NULL,
-user_id INTEGER REFERENCES users(id),
-created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
-);
-Alternatively, load the SQL dump from the backup/ folder.
+### Frontend
 
-5. Loading Database Backups
-   To restore a database backup:
+```bash
+cd frontend
+npm install
+npm start
+```
 
-Place your .sql dump in the backup/ directory.
-Use pgAdmin or pg_restore to load the backup into the PostgreSQL database.
-bash
-Copy code
-docker exec -it pg_container pg_restore -U postgres -d nannyvent /var/lib/postgresql/backup/your_backup.sql
-Running the Application
-To start the Flask application, you can either:
+Frontend runs at `http://localhost:3000`.
 
-Run the application locally:
+---
 
-bash
-Copy code
-flask run
-Run it via Docker:
+## API endpoints
 
-bash
-Copy code
-docker-compose up
-By default, the app should be available at http://localhost:5000.
+| Method | Endpoint            | Auth | Description              |
+| ------ | ------------------- | ---- | ------------------------ |
+| POST   | `/api/register`     | No   | Create an account        |
+| POST   | `/api/login`        | No   | Log in, receive JWT      |
+| GET    | `/api/posts/<role>` | No   | Get all posts for a role |
+| POST   | `/api/posts`        | Yes  | Create a post            |
+| PUT    | `/api/posts/<id>`   | Yes  | Edit your post           |
+| DELETE | `/api/posts/<id>`   | Yes  | Delete your post         |
+| POST   | `/api/match`        | Yes  | AI compatibility report  |
 
-Testing the API
-You can use Insomnia or Postman to test the API endpoints.
+### Match endpoint
 
-Example Endpoints:
-GET /users - Fetch all users
-POST /users - Create a new user
-GET /posts - Fetch all posts
-POST /posts - Create a new post
-For example, to create a new user via Insomnia:
+**POST** `/api/match`
 
-Method: POST
-
-URL: http://localhost:5001/users
-
-Body (JSON):
-
-json
-Copy code
+```json
 {
-"username": "testuser",
-"email": "testuser@example.com",
-"password": "password123"
+  "nanny_post_id": 1,
+  "parent_post_id": 2
 }
-Database Backup and Restore
-Backing up the Database
-To create a backup of your PostgreSQL database:
+```
 
-bash
-Copy code
-docker exec -t pg_container pg_dump -U postgres nannyvent > ./backup/nannyvent_backup.sql
-This will create a .sql file in the backup/ directory.
+Returns:
 
-Restoring the Database
-If you ever need to restore from the backup:
+```json
+{
+  "score": 82,
+  "summary": "Strong compatibility — the nanny's experience with toddlers aligns well with what this family needs.",
+  "suggestions": [
+    "The nanny could add her hourly rate and availability.",
+    "The parent could specify the children's ages.",
+    "Both could share their preferred communication style."
+  ]
+}
+```
 
-bash
-Copy code
-docker exec -i pg_container psql -U postgres -d nannyvent < ./backup/nannyvent_backup.sql
-Technologies Used
-Python (Flask)
-PostgreSQL
-pgAdmin for database management
-Docker for containerization
-SQLAlchemy for ORM
-Insomnia for API testing
-Live Front-end demo  at https://nannyvent.onrender.com 
+---
+
+## Deployment
+
+The backend is deployed as a Web Service on Render:
+
+- Root directory: `app`
+- Build command: `pip install -r requirements.txt`
+- Start command: `gunicorn app:app`
+- Environment variables: `SECRET_KEY`, `ANTHROPIC_API_KEY`, `DATABASE_URL`
+
+The frontend is deployed to GitHub Pages via `npm run deploy`.
+
+---
+
+## Author
+
+Built by [@taki4616](https://github.com/taki4616) as a full-stack portfolio project, with a focus on backend development and AI integration.
