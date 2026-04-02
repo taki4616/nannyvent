@@ -11,10 +11,6 @@ COPY . /project
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Make port 5000 available to the world outside this container
-EXPOSE 5000
-
-# Define environment variable
-ENV FLASK_APP=app.py
 ENV PYTHONPATH=/project
-# Define the entry point to use the startup script
-CMD ["python", "app.py"]
+
+CMD gunicorn app:app --bind 0.0.0.0:${PORT:-5000}
