@@ -3,10 +3,6 @@ Run once to populate the database with realistic sample users and posts.
 Usage: python seed.py
 """
 from datetime import datetime, timedelta
-from dotenv import load_dotenv
-load_dotenv()
-
-from app import create_app
 from models import db, User, Post
 
 NANNIES = [
@@ -165,51 +161,53 @@ PARENTS = [
 
 
 def seed():
-    app = create_app()
-    with app.app_context():
-        db.create_all()
+    """Seed sample users and posts. Safe to call inside an existing app context."""
+    if Post.query.count() > 0:
+        print("Database already has posts — skipping seed.")
+        return
 
-        if Post.query.count() > 0:
-            print("Database already has posts — skipping seed.")
-            return
+    print("Seeding database...")
 
-        print("Seeding database...")
+    for data in NANNIES:
+        if User.query.filter_by(email=data["email"]).first():
+            continue
+        user = User(username=data["username"], email=data["email"], role="nanny")
+        user.set_password(data["password"])
+        db.session.add(user)
+        db.session.flush()
+        post = Post(
+            title=data["title"],
+            content=data["content"],
+            role="nanny",
+            user_id=user.id,
+            created_at=datetime.utcnow() - timedelta(days=data["days_ago"]),
+        )
+        db.session.add(post)
 
-        for data in NANNIES:
-            if User.query.filter_by(email=data["email"]).first():
-                continue
-            user = User(username=data["username"], email=data["email"], role="nanny")
-            user.set_password(data["password"])
-            db.session.add(user)
-            db.session.flush()
-            post = Post(
-                title=data["title"],
-                content=data["content"],
-                role="nanny",
-                user_id=user.id,
-                created_at=datetime.utcnow() - timedelta(days=data["days_ago"]),
-            )
-            db.session.add(post)
+    for data in PARENTS:
+        if User.query.filter_by(email=data["email"]).first():
+            continue
+        user = User(username=data["username"], email=data["email"], role="parent")
+        user.set_password(data["password"])
+        db.session.add(user)
+        db.session.flush()
+        post = Post(
+            title=data["title"],
+            content=data["content"],
+            role="parent",
+            user_id=user.id,
+            created_at=datetime.utcnow() - timedelta(days=data["days_ago"]),
+        )
+        db.session.add(post)
 
-        for data in PARENTS:
-            if User.query.filter_by(email=data["email"]).first():
-                continue
-            user = User(username=data["username"], email=data["email"], role="parent")
-            user.set_password(data["password"])
-            db.session.add(user)
-            db.session.flush()
-            post = Post(
-                title=data["title"],
-                content=data["content"],
-                role="parent",
-                user_id=user.id,
-                created_at=datetime.utcnow() - timedelta(days=data["days_ago"]),
-            )
-            db.session.add(post)
-
-        db.session.commit()
-        print(f"Done — seeded {len(NANNIES)} nanny posts and {len(PARENTS)} parent posts.")
+    db.session.commit()
+    print(f"Done — seeded {len(NANNIES)} nanny posts and {len(PARENTS)} parent posts.")
 
 
 if __name__ == "__main__":
-    seed()
+    from dotenv import load_dotenv
+    load_dotenv()
+    from app import create_app
+    app = create_app()
+    with app.app_context():
+        seed()
