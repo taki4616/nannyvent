@@ -30,8 +30,30 @@ def create_app():
 
     with app.app_context():
         db.create_all()
+        _migrate_columns()
         from seed import seed
         seed()
+
+def _migrate_columns():
+    """Add new profile columns to existing tables without dropping data."""
+    from sqlalchemy import text
+    new_columns = [
+        "ALTER TABLE users ADD COLUMN IF NOT EXISTS bio TEXT",
+        "ALTER TABLE users ADD COLUMN IF NOT EXISTS location VARCHAR(100)",
+        "ALTER TABLE users ADD COLUMN IF NOT EXISTS profile_picture TEXT",
+        "ALTER TABLE users ADD COLUMN IF NOT EXISTS experience_years INTEGER",
+        "ALTER TABLE users ADD COLUMN IF NOT EXISTS availability VARCHAR(200)",
+        "ALTER TABLE users ADD COLUMN IF NOT EXISTS certifications VARCHAR(200)",
+        "ALTER TABLE users ADD COLUMN IF NOT EXISTS children_info VARCHAR(200)",
+        "ALTER TABLE users ADD COLUMN IF NOT EXISTS schedule_needed VARCHAR(200)",
+    ]
+    with db.engine.connect() as conn:
+        for stmt in new_columns:
+            try:
+                conn.execute(text(stmt))
+                conn.commit()
+            except Exception:
+                conn.rollback()
 
     return app
 

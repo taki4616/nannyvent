@@ -182,7 +182,11 @@ export default function PostsApp() {
                 <span className={`post-badge ${post.role}`}>{post.role}</span>
               </div>
               <div className="post-meta">
-                By {post.author || post.role} · {new Date(post.created_at).toLocaleDateString()}
+                By{" "}
+                <Link to={`/profile/${post.author}`} className="author-link">
+                  {post.author || post.role}
+                </Link>
+                {" "}· {new Date(post.created_at).toLocaleDateString()}
               </div>
               <div className="post-content">{post.content}</div>
               {showMatchButton(post) && (

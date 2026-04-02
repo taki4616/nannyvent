@@ -5,6 +5,7 @@ import GetStarted from "./components/GetStarted";
 import PostsApp from "./components/PostsApp.js";
 import Login from "./components/Login";
 import Register from "./components/Register";
+import Profile from "./components/Profile";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 
 function NavBar() {
@@ -41,6 +42,7 @@ function App() {
           <Route path="/login" element={<><NavBar /><Login /></>} />
           <Route path="/register" element={<><NavBar /><Register /></>} />
           <Route path="/posts" element={<><NavBar /><PostsApp /></>} />
+          <Route path="/profile/:username" element={<><NavBar /><Profile /></>} />
         </Routes>
       </Router>
     </AuthProvider>

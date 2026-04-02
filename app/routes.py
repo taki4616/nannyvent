@@ -251,6 +251,45 @@ Use exactly this format:
     except Exception as e:
         return jsonify({"error": "Match failed", "details": str(e)}), 500
 
+@routes.route('/api/profile/<username>', methods=['GET'])
+@token_required
+def get_profile(current_user, username):
+    user = User.query.filter_by(username=username).first()
+    if not user:
+        return jsonify({"error": "User not found"}), 404
+    profile = user.to_profile_dict()
+    post = Post.query.filter_by(user_id=user.id).order_by(Post.created_at.desc()).first()
+    profile["post"] = {
+        "id": post.id,
+        "title": post.title,
+        "content": post.content,
+        "created_at": post.created_at.isoformat()
+    } if post else None
+    return jsonify(profile), 200
+
+
+@routes.route('/api/profile', methods=['PUT'])
+@token_required
+def update_profile(current_user):
+    data = request.get_json()
+    if not data:
+        return jsonify({"error": "Missing JSON payload"}), 400
+
+    allowed = ['bio', 'location', 'profile_picture',
+               'experience_years', 'availability', 'certifications',
+               'children_info', 'schedule_needed']
+    for field in allowed:
+        if field in data:
+            setattr(current_user, field, data[field])
+
+    try:
+        db.session.commit()
+        return jsonify({"message": "Profile updated", "profile": current_user.to_profile_dict()}), 200
+    except Exception:
+        db.session.rollback()
+        return jsonify({"error": "Failed to update profile"}), 500
+
+
 @routes.route('/test', methods=['GET'])
 @routes.route('/api/test', methods=['GET'])
 def test_connection():
